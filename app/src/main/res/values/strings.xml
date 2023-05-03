@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Webscan Android</string>
+    <string name="info_main">VulneraYahav is a web vulnerability scanner that will ensure that your website is secure</string>
+    <string name="login">Login</string>
+    <string name="signup">Signup</string>
+    <string name="welcome_msg">Welcome to VulneraYahav!</string>
+</resources>
