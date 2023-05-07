@@ -25,6 +25,8 @@ class SiteScanner:
     def is_allowed(self):
         target_url = self.url.split('/')[0] + "//" + self.get_domain() + '/acceptance.txt'
 
+        accept_string = "I am aware that Yahav's vulnerability scanner is going to run on my server/website and I accept this!"
+
         try:
             response = requests.get(target_url)
         except:

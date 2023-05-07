@@ -323,4 +323,6 @@ fabric.properties
 
 !/gradle/wrapper/gradle-wrapper.jar
 
-# End of https://www.toptal.com/developers/gitignore/api/java,python,androidstudio
+# End of https://www.toptal.com/developers/gitignore/api/java,python,androidstudio./dvwa
+/dvwa
+dvwa
