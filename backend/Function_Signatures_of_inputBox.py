@@ -8,10 +8,13 @@ import time
 import re
 import urllib.parse
 import requests
+import os
 
 SAFE = 0
 NOT_SAFE = 1
 DATA_NUMBER = 1337
+
+os.environ['WDM_LOG'] = "false"
 
 
 """
@@ -19,9 +22,9 @@ This function adds a parameter to the url
 """
 def add_param(param_for_payload, query, url):
     try:
-        payload = {param_for_payload: query}
-        payload_str = urllib.parse.urlencode(payload, safe='()+=,')
-        resp = requests.get(url, params=payload_str)
+        payload = {param_for_payload[0]: query}
+        payload_str = '?' + urllib.parse.urlencode(payload, safe='()+=,') + param_for_payload[1]
+        resp = requests.get(url + payload_str)
     except:
         pass
     return resp
@@ -31,11 +34,11 @@ def detect_parameter_in_url(url):
     """
     for the first parameter
     """
-    if '=' in url:
-        sign_of_parameter = re.split(r'=', url)
+    if '?' in url:
+        sign_of_parameter = url.split('?')
         url = sign_of_parameter[0]
 
-    url += '='
+    #url += '='
     return url
 
 
@@ -44,7 +47,12 @@ This function finds the parameter in url and returns it
 """
 def finds_parameter(url):
     try:
-        return url.split("?")[1].split("=")[0]
+        params = url.split("?")[1].split("&")
+
+        if len(params) == 1:
+            return [params[0].split('=')[0], '']
+        
+        return [params[0].split('=')[0], '&' + '&'.join(params[1:])]
     except:
         print("There are no parameters in the URL")
 
@@ -53,7 +61,10 @@ def finds_parameter(url):
 This function input into frame_box
 """
 def do_input(url, details):
-    browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    browser = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
     browser.maximize_window()
     time.sleep(5)
     browser.get(url)
@@ -64,7 +75,7 @@ def do_input(url, details):
             browser.find_element(By.NAME, detail['name']).send_keys("'")
         elif detail['type'] == "submit":
             browser.find_element(By.XPATH, "//input[@type='submit']").click()
-
+    
     return browser.current_url
     # closing the browser
     time.sleep(50)

@@ -16,59 +16,37 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.content.res.AssetFileDescriptor;
-import android.content.res.AssetManager;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.chaquo.python.PyObject;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import org.checkerframework.checker.index.qual.LengthOf;
-
 import java.io.File;
-import java.io.FileDescriptor;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
-public class DashboardActivity extends AppCompatActivity implements View.OnClickListener {
+public class DashboardActivity extends AppCompatActivity implements View.OnClickListener, AuthenticationCallback {
 
     private TextView usernameTextView;
-    private TextView urlTextView;
+    private EditText urlEditText;
     private Button startScanButton;
-    private FirebaseUser user;
-    private FirebaseFirestore db;
+    private FirebaseManager manager;
     private ImageView imageView;
     private String url;
     private AnimationDrawable animationDrawable;
@@ -80,21 +58,16 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        // init Python
-        Python.start(new AndroidPlatform(this));
-
         // init xml component
         usernameTextView = (TextView) findViewById(R.id.username);
-        urlTextView = (TextView) findViewById(R.id.url);
+        urlEditText = (EditText) findViewById(R.id.url);
         startScanButton = (Button) findViewById(R.id.start_scan);
         imageView = findViewById(R.id.background);
         animationDrawable = (AnimationDrawable) imageView.getDrawable();
 
-        // init db
-        user = FirebaseAuth.getInstance().getCurrentUser();
-        db = FirebaseFirestore.getInstance();
+        manager = new FirebaseManager();
 
-        getEmailAndUsernameFromDB();
+        manager.getEmailAndUsernameFromDB(this);
 
         // creates notification channel for the notification when the scan in done
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -121,15 +94,9 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
      */
     private void scanThreadFunction() {
 
-        Python py = Python.getInstance();
-
-        PyObject pyobj = py.getModule("Main").callAttr("main", url);
-
-        String fileContent = pyobj.toString().replace("\\n", "\n");
-
         String fileName = url.split("/")[2].replace("www.", "") + ".txt";
 
-        String filePath = createAndWriteToFile(fileName, fileContent);
+        String filePath = createAndWriteToFile(fileName, "asd");
 
         // Check if permission is already granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -148,6 +115,12 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
      */
     @Override
     public void onClick(View v) {
+
+        if (!url.equals(urlEditText.getText().toString()))
+        {
+            url = urlEditText.getText().toString();
+        }
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -158,35 +131,7 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
         Toast.makeText(DashboardActivity.this, "Scan Started, You will get notification when it ends", Toast.LENGTH_SHORT).show();
     }
 
-    /**
-    Function gets the logged user's username and url and updates the TextViews with the values
-    Input: none
-    Output: none
-     */
-    private void getEmailAndUsernameFromDB()
-    {
 
-        Query query = db.collection("users").whereEqualTo("email", user.getEmail());
-
-        // Execute the query and retrieve the matching documents
-        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    // Iterate over the matching documents and log their data
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        url = String.valueOf(document.get("url"));
-                        String usernameText = "Username: \n" + document.get("username"), urlText = "URL: \n" + url;
-
-                        usernameTextView.setText(usernameText);
-                        urlTextView.setText(urlText);
-                    }
-                } else {
-                    Toast.makeText(DashboardActivity.this, "Error getting documents.", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
 
 
     /**
@@ -285,5 +230,25 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
         // create the notification
         int notificationId = (int) System.currentTimeMillis();
         notificationManager.notify(notificationId, builder.build());
+    }
+
+    @Override
+    public void onAuthenticationResult(boolean isSuccess) {}
+
+    @Override
+    public void onQueryResult(@NonNull Task<QuerySnapshot> task) {
+        if (task.isSuccessful()) {
+            // Iterate over the matching documents and log their data
+            for (QueryDocumentSnapshot document : task.getResult()) {
+                url = String.valueOf(document.get("url"));
+
+                String usernameText = "Username: \n" + String.valueOf(document.get("username")), urlText = "URL: \n" + url;
+
+                usernameTextView.setText(usernameText);
+                urlEditText.setText(urlText);
+            }
+        } else {
+            Toast.makeText(DashboardActivity.this, "Error getting documents.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

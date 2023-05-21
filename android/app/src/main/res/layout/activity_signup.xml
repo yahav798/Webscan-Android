@@ -47,10 +47,10 @@
             android:layout_marginBottom="16dp"/>
 
         <EditText
-            android:id="@+id/domain_edit_text"
+            android:id="@+id/url_edit_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Domain"
+            android:hint="URL"
             android:text="yahavdomain.yga"
             android:inputType="text"
             android:layout_marginBottom="32dp"/>

@@ -9,6 +9,10 @@ This function puts a value into parameter of url
 def do_xss_attack_url(url):
 
     param_for_payload = finds_parameter(url)
+
+    if param_for_payload is None:
+        return SAFE
+
     url = detect_parameter_in_url(url)
 
     query = f"<script>document.write({DATA_NUMBER})</script>"

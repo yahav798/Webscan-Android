@@ -32,7 +32,7 @@ class SiteScanner:
         except:
             return False
 
-        if response.status_code == 200:
+        if response.status_code == 200 and response.text == accept_string:
             return True
         else:
             return False

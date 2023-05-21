@@ -28,7 +28,7 @@
             android:textSize="30sp"
             android:background="@drawable/view_background" />
 
-        <TextView
+        <EditText
             android:id="@+id/url"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

