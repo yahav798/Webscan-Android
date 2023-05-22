@@ -1,10 +1,6 @@
 package com.example.webscanandroid;
 
-import android.os.SystemClock;
-import android.util.Log;
-
 import androidx.annotation.NonNull;
-import android.os.CountDownTimer;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -17,7 +13,6 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
@@ -44,7 +39,7 @@ public class FirebaseManager {
     }
 
     @Synchronized
-    public void login(String email, String password, AuthenticationCallback callback) {
+    public void login(String email, String password, FirebaseQueriesCallback callback) {
 
         auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -56,7 +51,7 @@ public class FirebaseManager {
                 });
     }
 
-    public boolean signup(String username, String password, String email, String url, AuthenticationCallback callback)
+    public boolean signup(String username, String password, String email, String url, FirebaseQueriesCallback callback)
     {
         final boolean[] result = new boolean[1];
 
@@ -85,7 +80,7 @@ public class FirebaseManager {
 
         return result[0];
     }
-    private void signupForAuth(String password, String email, AuthenticationCallback callback)
+    private void signupForAuth(String password, String email, FirebaseQueriesCallback callback)
     {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -101,7 +96,7 @@ public class FirebaseManager {
      Input: none
      Output: none
      */
-    public void getEmailAndUsernameFromDB(AuthenticationCallback callback)
+    public void getEmailAndUsernameFromDB(FirebaseQueriesCallback callback)
     {
         Query query = db.collection("users").whereEqualTo("email", user.getEmail());
 
@@ -114,7 +109,7 @@ public class FirebaseManager {
         });
     }
 
-    public void updateURL(AuthenticationCallback callback) {
+    public void updateURL(FirebaseQueriesCallback callback) {
         CollectionReference collectionRef = db.collection("users");
 
         Query query = collectionRef.whereEqualTo("email", user.getEmail());
@@ -128,7 +123,7 @@ public class FirebaseManager {
         auth.signOut();
     }
 
-    public void deleteCurrentUser(AuthenticationCallback callback)
+    public void deleteCurrentUser(FirebaseQueriesCallback callback)
     {
         String email = user.getEmail();
 

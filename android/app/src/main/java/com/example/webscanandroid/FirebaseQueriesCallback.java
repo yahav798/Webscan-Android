@@ -5,7 +5,7 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
 
-public interface AuthenticationCallback {
+public interface FirebaseQueriesCallback {
     void onAuthenticationResult(boolean isSuccess);
     void onQueryResult(@NonNull Task<QuerySnapshot> task);
     void onDeleteResult(@NonNull Task<QuerySnapshot> task);

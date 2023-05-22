@@ -34,11 +34,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-
-import org.checkerframework.checker.index.qual.LengthOf;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -51,7 +48,7 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 
-public class DashboardActivity extends AppCompatActivity implements View.OnClickListener, AuthenticationCallback {
+public class DashboardActivity extends AppCompatActivity implements View.OnClickListener, FirebaseQueriesCallback {
 
     private TextView usernameTextView;
     private EditText urlEditText;

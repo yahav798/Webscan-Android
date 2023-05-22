@@ -14,7 +14,7 @@ import android.widget.Toast;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;
 
-public class SignupActivity extends AppCompatActivity implements View.OnClickListener, AuthenticationCallback {
+public class SignupActivity extends AppCompatActivity implements View.OnClickListener, FirebaseQueriesCallback {
     private EditText nameEditText;
     private EditText emailEditText;
     private EditText passwordEditText;
