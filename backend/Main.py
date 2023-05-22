@@ -73,6 +73,10 @@ def main(url):
         return "URL cannot be scanned due to acceptance file missing!"
 
     for i in data_of_site.all_links():
+
+        if 'xss' not in i and 'sqli' not in i and 'fi' not in i and 'redirect' not in i and 'csrf' not in i:
+            continue
+
         returnString += "Scanning: " + i + "\n"
         print("\n\nScanning: " + i)
 

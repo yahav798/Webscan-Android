@@ -88,5 +88,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public void onQueryResult(@NonNull Task<QuerySnapshot> task) {}
+    public void onDeleteResult(@NonNull Task<QuerySnapshot> task) {}
+    public void onUpdateResult(@NonNull Task<QuerySnapshot> task) {}
 
 }

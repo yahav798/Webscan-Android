@@ -1,7 +1,5 @@
 package com.example.webscanandroid;
 
-import static android.app.PendingIntent.FLAG_MUTABLE;
-import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,6 +10,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -25,6 +24,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,13 +34,22 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.checkerframework.checker.index.qual.LengthOf;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+
 
 public class DashboardActivity extends AppCompatActivity implements View.OnClickListener, AuthenticationCallback {
 
@@ -48,7 +58,6 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
     private Button startScanButton;
     private FirebaseManager manager;
     private ImageView imageView;
-    private String url;
     private AnimationDrawable animationDrawable;
 
     private static final int PERMISSION_REQUEST_CODE = new Random().nextInt(1000);
@@ -87,6 +96,39 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
 
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.dashboard_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        super.onOptionsItemSelected(item);
+
+        int id = item.getItemId();
+
+        if (id == R.id.update_url) {
+            manager.updateURL(this);
+        }
+        else if (id == R.id.reset_pwd) {
+            Intent myIntent = new Intent(this, LoginActivity.class);
+            this.startActivity(myIntent);
+        }
+        else if (id == R.id.logout) {
+            manager.logoutCurrentUser();
+
+            Intent myIntent = new Intent(this, MainActivity.class);
+            this.startActivity(myIntent);
+            finish();
+        }
+        else if (id == R.id.delete_user) {
+            manager.deleteCurrentUser(this);
+        }
+
+        return true;
+    }
+
     /**
     Function starts the scan on the user's url
     Input: none
@@ -94,9 +136,35 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
      */
     private void scanThreadFunction() {
 
-        String fileName = url.split("/")[2].replace("www.", "") + ".txt";
+        String fileContent = "";
+        OkHttpClient client = new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.MINUTES) // Set the connect timeout
+                .readTimeout(15, TimeUnit.MINUTES) // Set the read timeout
+                .build();
 
-        String filePath = createAndWriteToFile(fileName, "asd");
+        Request request = new Request.Builder()
+                .url("https://1709-2a00-a041-2a1a-4300-71b8-1d73-bb9e-9d0a.ngrok-free.app/scan?url=" + urlEditText.getText().toString())
+                .build();
+
+        try (Response response = client.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                Log.d("DONE!!!", "done");
+                // Successful response
+                fileContent = response.body().string();
+                // Process the response body
+            }
+        } catch (IOException e) {
+            // Handle the exception
+            Log.d("ERROR", e.toString());
+        }
+
+        String fileName = urlEditText.getText().toString().split("/")[2].replace("www.", "") + ".txt";
+
+        String filePath = createAndWriteToFile(fileName, fileContent);
+
+        Log.d("DONE!!!", fileContent);
+        Log.d("DONE!!!", fileName);
+        Log.d("DONE!!!", filePath);
 
         // Check if permission is already granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -115,12 +183,6 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
      */
     @Override
     public void onClick(View v) {
-
-        if (!url.equals(urlEditText.getText().toString()))
-        {
-            url = urlEditText.getText().toString();
-        }
-
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -235,20 +297,52 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void onAuthenticationResult(boolean isSuccess) {}
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onQueryResult(@NonNull Task<QuerySnapshot> task) {
         if (task.isSuccessful()) {
             // Iterate over the matching documents and log their data
             for (QueryDocumentSnapshot document : task.getResult()) {
-                url = String.valueOf(document.get("url"));
-
-                String usernameText = "Username: \n" + String.valueOf(document.get("username")), urlText = "URL: \n" + url;
-
-                usernameTextView.setText(usernameText);
-                urlEditText.setText(urlText);
+                usernameTextView.setText("Username: \n" + String.valueOf(document.get("username")));
+                urlEditText.setText(String.valueOf(document.get("url")));
             }
         } else {
             Toast.makeText(DashboardActivity.this, "Error getting documents.", Toast.LENGTH_SHORT).show();
         }
     }
+
+    public void onDeleteResult(@NonNull Task<QuerySnapshot> task)
+    {
+        if (task.isSuccessful()) {
+            for (QueryDocumentSnapshot document : task.getResult()) {
+                document.getReference().delete()
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(DashboardActivity.this, "User successfully deleted!", Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(DashboardActivity.this, "Error deleting document", Toast.LENGTH_SHORT).show();
+                        });
+            }
+        } else {
+            Toast.makeText(DashboardActivity.this, "Error getting documents: ", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void onUpdateResult(@NonNull Task<QuerySnapshot> task)
+    {
+        if (task.isSuccessful()) {
+            for (QueryDocumentSnapshot document : task.getResult()) {
+                document.getReference().update("URL", urlEditText.getText().toString())
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(DashboardActivity.this, "URL successfully updated!L", Toast.LENGTH_SHORT).show();
+                        })
+                        .addOnFailureListener(e -> {
+                            Toast.makeText(DashboardActivity.this, "Error updating URL", Toast.LENGTH_SHORT).show();
+                        });
+            }
+        } else {
+            Toast.makeText(DashboardActivity.this, "Error getting documents: ", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

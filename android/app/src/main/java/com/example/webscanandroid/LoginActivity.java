@@ -80,5 +80,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onQueryResult(@NonNull Task<QuerySnapshot> task) {}
+    public void onDeleteResult(@NonNull Task<QuerySnapshot> task) {}
+    public void onUpdateResult(@NonNull Task<QuerySnapshot> task) {}
 
 }

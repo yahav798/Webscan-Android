@@ -8,4 +8,6 @@ import com.google.firebase.firestore.QuerySnapshot;
 public interface AuthenticationCallback {
     void onAuthenticationResult(boolean isSuccess);
     void onQueryResult(@NonNull Task<QuerySnapshot> task);
+    void onDeleteResult(@NonNull Task<QuerySnapshot> task);
+    void onUpdateResult(@NonNull Task<QuerySnapshot> task);
 }

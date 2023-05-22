@@ -11,7 +11,16 @@ CORS(app)
 
 
 ########################################### APP ROUTES ###########################################
- 
+
+'''
+backend route that checks the log in credentials
+'''
+@app.route("/hello")
+def msg():
+    url = request.args.get('url')
+
+    return "Your input is: " + str(url)
+
 '''
 backend route that checks the log in credentials
 '''
@@ -19,7 +28,7 @@ backend route that checks the log in credentials
 def start_scan():
     url = request.args.get('url')
 
-    return { "result": str(main(url)) } 
+    return str(main(url))
 
 
 

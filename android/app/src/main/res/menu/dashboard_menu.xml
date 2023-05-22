@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/update_url"
+        android:title="Update URL"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/reset_pwd"
+        android:title="Reset Password"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/logout"
+        android:title="Log Out"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/delete_user"
+        android:title="Delete User"
+        app:showAsAction="never" />
+</menu>

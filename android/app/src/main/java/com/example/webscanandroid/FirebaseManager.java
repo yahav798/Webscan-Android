@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -32,8 +33,6 @@ public class FirebaseManager {
 
     public FirebaseManager()
     {
-
-
         user = FirebaseAuth.getInstance().getCurrentUser();
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
@@ -114,6 +113,35 @@ public class FirebaseManager {
             }
         });
     }
+
+    public void updateURL(AuthenticationCallback callback) {
+        CollectionReference collectionRef = db.collection("users");
+
+        Query query = collectionRef.whereEqualTo("email", user.getEmail());
+        query.get().addOnCompleteListener(task -> {
+
+        });
+    }
+
+    public void logoutCurrentUser()
+    {
+        auth.signOut();
+    }
+
+    public void deleteCurrentUser(AuthenticationCallback callback)
+    {
+        String email = user.getEmail();
+
+        user.delete();
+
+        CollectionReference collectionRef = db.collection("users");
+
+        Query query = collectionRef.whereEqualTo("email", email);
+        query.get().addOnCompleteListener(task -> {
+            callback.onDeleteResult(task);
+        });
+    }
+
 
 }
 
