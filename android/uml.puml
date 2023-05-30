@@ -1,0 +1,86 @@
+@startuml
+class com.example.webscanandroid.FirebaseManager {
+- FirebaseUser user
+- FirebaseAuth auth
+- FirebaseFirestore db
++ void login(String,String,FirebaseQueriesCallback)
++ void signup(Map<String,Object>,FirebaseQueriesCallback)
+- void signupForAuth(String,String,FirebaseQueriesCallback)
++ void getEmailAndUsernameFromDB(FirebaseQueriesCallback,String)
++ void updateURL(FirebaseQueriesCallback)
++ void logoutCurrentUser()
++ void deleteCurrentUser(FirebaseQueriesCallback)
+}
+interface com.example.webscanandroid.FirebaseQueriesCallback {
+~ void onAuthenticationResult(boolean)
+~ void onQueryResult(Task<QuerySnapshot>)
+~ void onDeleteResult(Task<QuerySnapshot>)
+~ void onUpdateResult(Task<QuerySnapshot>)
+}
+class com.example.webscanandroid.MainActivity {
+- Button loginButton
+- Button signupButton
+- AnimationDrawable backgroundAnimation
+# void onCreate(Bundle)
++ void onClick(View)
+}
+class com.example.webscanandroid.DashboardActivity {
+- TextView usernameTextView
+- EditText urlEditText
+- Button startScanButton
+- FirebaseManager manager
+- AnimationDrawable animationDrawable
+- {static} int PERMISSION_REQUEST_CODE
+# void onCreate(Bundle)
++ void onClick(View)
++ boolean onCreateOptionsMenu(Menu)
++ boolean onOptionsItemSelected(MenuItem)
+- void scanThreadFunction()
++ void onRequestPermissionsResult(int,String[],int[])
+- String createAndWriteToFile(String,String)
+- void showNotification(String,String)
++ void onAuthenticationResult(boolean)
++ void onQueryResult(Task<QuerySnapshot>)
++ void onDeleteResult(Task<QuerySnapshot>)
++ void onUpdateResult(Task<QuerySnapshot>)
+}
+class com.example.webscanandroid.SignupActivity {
+- EditText nameEditText
+- EditText emailEditText
+- EditText passwordEditText
+- EditText urlEditText
+- Button signupButton
+- FirebaseManager manager
+# void onCreate(Bundle)
++ void onClick(View)
++ void onAuthenticationResult(boolean)
++ void onQueryResult(Task<QuerySnapshot>)
++ void onDeleteResult(Task<QuerySnapshot>)
++ void onUpdateResult(Task<QuerySnapshot>)
+}
+class com.example.webscanandroid.LoginActivity {
+- EditText emailEditText
+- EditText passwordEditText
+- Button loginButton
+- FirebaseManager manager
+# void onCreate(Bundle)
++ void onClick(View)
++ void onAuthenticationResult(boolean)
++ void onQueryResult(Task<QuerySnapshot>)
++ void onDeleteResult(Task<QuerySnapshot>)
++ void onUpdateResult(Task<QuerySnapshot>)
+}
+
+
+com.example.webscanandroid.OnClickListener <|.. com.example.webscanandroid.MainActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.webscanandroid.MainActivity
+com.example.webscanandroid.OnClickListener <|.. com.example.webscanandroid.DashboardActivity
+com.example.webscanandroid.FirebaseQueriesCallback <|.. com.example.webscanandroid.DashboardActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.webscanandroid.DashboardActivity
+com.example.webscanandroid.OnClickListener <|.. com.example.webscanandroid.SignupActivity
+com.example.webscanandroid.FirebaseQueriesCallback <|.. com.example.webscanandroid.SignupActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.webscanandroid.SignupActivity
+com.example.webscanandroid.OnClickListener <|.. com.example.webscanandroid.LoginActivity
+com.example.webscanandroid.FirebaseQueriesCallback <|.. com.example.webscanandroid.LoginActivity
+androidx.appcompat.app.AppCompatActivity <|-- com.example.webscanandroid.LoginActivity
+@enduml

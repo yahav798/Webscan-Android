@@ -21,6 +21,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button loginButton;
     private FirebaseManager manager;
 
+    /**
+     Function init the activity, the class variables and more
+     input: saved instance state
+     output: none
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +42,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         loginButton.setOnClickListener(this);
     }
 
-    /*
+    /**
     Function logs the user using email and password when the button clicked
     Input: the button's View
     Output: none
@@ -61,6 +66,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         manager.login(email, password, this);
     }
 
+    /**
+     Function gets firebase login action's result and move to the dashboard screen if succeeded
+     input: boolean - true if the action succeeded
+     output: none
+     */
     @Override
     public void onAuthenticationResult(boolean isSuccess)
     {
@@ -77,9 +87,20 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    /**
+     Function is empty but must be declared due to interface requirements
+     */
     @Override
     public void onQueryResult(@NonNull Task<QuerySnapshot> task) {}
+
+    /**
+     Function is empty but must be declared due to interface requirements
+     */
     public void onDeleteResult(@NonNull Task<QuerySnapshot> task) {}
+
+    /**
+     Function is empty but must be declared due to interface requirements
+     */
     public void onUpdateResult(@NonNull Task<QuerySnapshot> task) {}
 
 }

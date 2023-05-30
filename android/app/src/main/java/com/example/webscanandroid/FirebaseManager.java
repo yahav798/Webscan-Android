@@ -1,5 +1,8 @@
 package com.example.webscanandroid;
 
+import android.util.Log;
+
+import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -26,19 +29,23 @@ public class FirebaseManager {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
+    /**
+     Function C'tor that init the class variables
+     Input: none
+     Output: none
+     */
     public FirebaseManager()
     {
-        user = FirebaseAuth.getInstance().getCurrentUser();
         auth = FirebaseAuth.getInstance();
+        user = auth.getCurrentUser();
         db = FirebaseFirestore.getInstance();
     }
 
-    public FirebaseUser getUser()
-    {
-        return user;
-    }
-
-    @Synchronized
+    /**
+     Function logs in to the user with the given credentials and calls the callback with the result
+     Input: email and password to login and the callback class
+     Output: none
+     */
     public void login(String email, String password, FirebaseQueriesCallback callback) {
 
         auth.signInWithEmailAndPassword(email, password)
@@ -51,16 +58,20 @@ public class FirebaseManager {
                 });
     }
 
-    public boolean signup(String username, String password, String email, String url, FirebaseQueriesCallback callback)
+    /**
+     Function insert the new user to database and calls the function of the authentication if succeeded
+     Input: map of the data to register and the callback class
+     Output: none
+     */
+    public void signup(String username, String password, String email, String url, FirebaseQueriesCallback callback)
     {
-        final boolean[] result = new boolean[1];
-
         // creates the user's object and insert to the db
         Map<String, Object> data = new HashMap<>();
 
         data.put("username", username);
         data.put("email", email);
         data.put("url", url);
+        data.put("best_scan", 0);
 
         db.collection("users")
                 .add(data)
@@ -74,13 +85,17 @@ public class FirebaseManager {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         // Toast.makeText(SignupActivity.this, "Authentication failed on db.", Toast.LENGTH_SHORT).show();
-                        result[0] = false;
+                        callback.onAuthenticationResult(false);
                     }
                 });
-
-        return result[0];
     }
-    private void signupForAuth(String password, String email, FirebaseQueriesCallback callback)
+
+    /**
+     Function insert the new user to authentication system and calls the callback with the result
+     Input: email and password to register and the callback class
+     Output: none
+     */
+    private void signupForAuth(String email, String password, FirebaseQueriesCallback callback)
     {
         auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
@@ -92,13 +107,20 @@ public class FirebaseManager {
     }
 
     /**
-     Function gets the logged user's username and url and updates the TextViews with the values
-     Input: none
+     Function gets the given user's username and url and calls the callback with the result
+     Input: the callback class and the email to get the info (empty means current logged in user)
      Output: none
      */
-    public void getEmailAndUsernameFromDB(FirebaseQueriesCallback callback)
+    public void getEmailAndUsernameFromDB(FirebaseQueriesCallback callback, String email)
     {
-        Query query = db.collection("users").whereEqualTo("email", user.getEmail());
+        if (email.isEmpty())
+        {
+            email = user.getEmail();
+        }
+
+        Log.d("ERROR!", email);
+
+        Query query = db.collection("users").whereEqualTo("email", email);
 
         // Execute the query and retrieve the matching documents
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -109,20 +131,38 @@ public class FirebaseManager {
         });
     }
 
+    /**
+     Function gets the logged user's url and calls the callback with the result in order to change its value
+     Input: the callback class
+     Output: none
+     */
     public void updateURL(FirebaseQueriesCallback callback) {
         CollectionReference collectionRef = db.collection("users");
 
         Query query = collectionRef.whereEqualTo("email", user.getEmail());
-        query.get().addOnCompleteListener(task -> {
-
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                callback.onUpdateResult(task);
+            }
         });
     }
 
+    /**
+     Function logs out of the system
+     Input: none
+     Output: none
+     */
     public void logoutCurrentUser()
     {
         auth.signOut();
     }
 
+    /**
+     Function gets the logged user and calls the callback with the result in order to delete him
+     Input: the callback class
+     Output: none
+     */
     public void deleteCurrentUser(FirebaseQueriesCallback callback)
     {
         String email = user.getEmail();
@@ -132,8 +172,11 @@ public class FirebaseManager {
         CollectionReference collectionRef = db.collection("users");
 
         Query query = collectionRef.whereEqualTo("email", email);
-        query.get().addOnCompleteListener(task -> {
-            callback.onDeleteResult(task);
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                callback.onDeleteResult(task);
+            }
         });
     }
 

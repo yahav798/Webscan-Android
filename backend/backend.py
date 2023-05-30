@@ -5,7 +5,6 @@ from Main import main
 
 ########################################### APP CONSTS ###########################################
 
-
 app = Flask(__name__)
 CORS(app)
 
@@ -31,13 +30,10 @@ def start_scan():
     return str(main(url))
 
 
-
-
-
-
 ########################################### APP SOCKET ###########################################
 
 if __name__ == "__main__":
     #socketio.run(app, debug=True)
     app.run(debug=True)
+
 
