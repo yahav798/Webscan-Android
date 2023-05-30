@@ -34,6 +34,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -150,6 +151,7 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
             finish();
         }
         else if (id == R.id.delete_user) {
+            Toast.makeText(this, "deleting user is starting", Toast.LENGTH_SHORT).show();
             manager.deleteCurrentUser(this);
         }
 
@@ -332,7 +334,11 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
             for (QueryDocumentSnapshot document : task.getResult()) {
                 document.getReference().delete()
                         .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(DashboardActivity.this, "User successfully deleted!", Toast.LENGTH_SHORT).show();
+                            Intent myIntent = new Intent(this, MainActivity.class);
+                            this.startActivity(myIntent);
+
+                            finish();
+                            // Toast.makeText(DashboardActivity.this, "User successfully deleted!", Toast.LENGTH_SHORT).show();
                         })
                         .addOnFailureListener(e -> {
                             Toast.makeText(DashboardActivity.this, "Error deleting document", Toast.LENGTH_SHORT).show();

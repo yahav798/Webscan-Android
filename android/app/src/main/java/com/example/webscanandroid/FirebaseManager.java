@@ -126,6 +126,7 @@ public class FirebaseManager {
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                Log.d("RESULT!", String.valueOf(task.isSuccessful()));
                 callback.onQueryResult(task);
             }
         });
@@ -166,8 +167,9 @@ public class FirebaseManager {
     public void deleteCurrentUser(FirebaseQueriesCallback callback)
     {
         String email = user.getEmail();
-
+        Log.d("DELETE!", email);
         user.delete();
+        Log.d("DELETE!", "delete auth done!");
 
         CollectionReference collectionRef = db.collection("users");
 

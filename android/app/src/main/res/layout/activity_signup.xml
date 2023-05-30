@@ -55,7 +55,7 @@
             android:layout_marginBottom="32dp"
             android:hint="URL"
             android:inputType="text"
-            android:text="yahavdomain.yga" />
+            android:text="http://localhost/dvwa/" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/signup_button"
