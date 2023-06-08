@@ -184,7 +184,7 @@ def do_job_url(url):
             resp = add_param(param_for_payload, query, url)
 
             if "error" in resp.text.lower():
-                print(url, param_for_payload)
+                #print(url, param_for_payload)
                 check_type = check_for_string(url, param_for_payload)
             else:
                 return None

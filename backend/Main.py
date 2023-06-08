@@ -73,9 +73,10 @@ def main(url):
         return "URL cannot be scanned due to acceptance file missing!"
 
     for i in data_of_site.all_links():
-
+        '''
         if 'xss' not in i and 'sqli' not in i and 'fi' not in i and 'redirect' not in i and 'csrf' not in i:
             continue
+        '''
 
         returnString += "Scanning: " + i + "\n"
         print("\n\nScanning: " + i)
@@ -99,10 +100,6 @@ def main(url):
             returnString += is_site_safe("Sql Injecetion", sql, do_job_url(website.url))
         else:
             new_url = do_job_inputBox(website.url, type_scan)
-
-            if 'sqli' in i:
-                print(new_url)
-
             returnString += is_site_safe("Sql Injecetion", sql, do_job_url(new_url))
 
         vulnerabilities_result.append(sql.summary.succeeded)
@@ -152,13 +149,13 @@ def main(url):
 
         vulnerabilities_result = []
 
-    returnString += final_result_of_all_links.__str__() + "\n\n"
+    # returnString += final_result_of_all_links.__str__() + "\n\n"
     
-    print(final_result_of_all_links)
+    # print(final_result_of_all_links)
 
     final = {'DOS': [], 'SQL': [], 'XSS': [], 'REDIRECTS_AND_FORWARDS': [], 'CSRF': [], 'LFI': [], 'RFI': []}
 
-    print(final)
+    # print(final)
 
     count = 0
     found = 0
@@ -178,7 +175,7 @@ def main(url):
         returnString += tmp[:-2] + "\n"
         print(tmp[:-2])
 
-    print(final)
+    # print(final)
         
     print(f"final score: {100 - int((found / count) * 100)} out of 100!")
     returnString += f"\n\nfinal score: {100 - int((found / count) * 100)} out of 100!"

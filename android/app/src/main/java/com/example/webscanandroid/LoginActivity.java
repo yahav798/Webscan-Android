@@ -102,7 +102,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     /**
      Function is empty but must be declared due to interface requirements
      */
-    public void onUpdateResult(@NonNull Task<QuerySnapshot> task) {}
+    public void onUpdateResult(@NonNull Task<QuerySnapshot> task, int result) {}
 
     /**
      Function is empty but must be declared due to interface requirements

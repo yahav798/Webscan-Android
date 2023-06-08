@@ -1,6 +1,7 @@
 package com.example.webscanandroid;
 
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.LongDef;
 import androidx.annotation.NonNull;
@@ -18,6 +19,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
@@ -145,7 +147,7 @@ public class FirebaseManager {
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                callback.onUpdateResult(task);
+                callback.onUpdateResult(task, -1);
             }
         });
     }
@@ -193,7 +195,7 @@ public class FirebaseManager {
                 });
     }
 
-    public void resetPassword( FirebaseQueriesCallback callback) {
+    public void resetPassword(FirebaseQueriesCallback callback) {
         auth.sendPasswordResetEmail(user.getEmail())
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
@@ -201,6 +203,17 @@ public class FirebaseManager {
                         callback.onAuthenticationResult(task.isSuccessful());
                     }
                 });
+    }
+
+    public void updateScanScore(int result, FirebaseQueriesCallback callback)
+    {
+        Query query = db.collection("users").whereEqualTo("email", user.getEmail());
+        query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                callback.onUpdateResult(task, result);
+            }
+        });
     }
 
 

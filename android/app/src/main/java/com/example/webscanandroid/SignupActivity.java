@@ -70,6 +70,12 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
 
+        if (details[PASSWORD_INDEX].length() < 6)
+        {
+            userInput[PASSWORD_INDEX].setError("Password length must be at least 6 chars.");
+            return;
+        }
+
         manager.checkForEmail(details[EMAIL_INDEX], this);
     }
 
@@ -108,8 +114,6 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
      Function is empty but must be declared due to interface requirements
      */
     public void onSearchForEmailResult(@NonNull Task<SignInMethodQueryResult> task) {
-        Toast.makeText(this, "first step", Toast.LENGTH_SHORT).show();
-
         if (task.isSuccessful()) {
             SignInMethodQueryResult result = task.getResult();
             if (result != null && result.getSignInMethods() != null && !result.getSignInMethods().isEmpty()) {
@@ -132,6 +136,6 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
     /**
      Function is empty but must be declared due to interface requirements
      */
-    public void onUpdateResult(@NonNull Task<QuerySnapshot> task) {}
+    public void onUpdateResult(@NonNull Task<QuerySnapshot> task, int result) {}
 
 }

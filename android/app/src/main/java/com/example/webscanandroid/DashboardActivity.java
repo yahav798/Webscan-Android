@@ -169,12 +169,12 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
 
         String fileContent = "";
         OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(15, TimeUnit.MINUTES) // Set the connect timeout
-                .readTimeout(15, TimeUnit.MINUTES) // Set the read timeout
+                .connectTimeout(30, TimeUnit.MINUTES) // Set the connect timeout
+                .readTimeout(30, TimeUnit.MINUTES) // Set the read timeout
                 .build();
 
         Request request = new Request.Builder()
-                .url("https://2ecc-2a00-a041-2a1a-4300-7815-23b6-3232-fe34.ngrok-free.app/scan?url=" + urlEditText.getText().toString())
+                .url("https://2a06-2a00-a041-2a1a-4300-9988-f644-5bb6-84e2.ngrok-free.app/scan?url=" + urlEditText.getText().toString())
                 .build();
 
         try (Response response = client.newCall(request).execute()) {
@@ -191,6 +191,19 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
         String fileName = urlEditText.getText().toString().split("/")[2].replace("www.", "") + ".txt";
 
         String filePath = createAndWriteToFile(fileName, fileContent);
+
+        int result = 0;
+        try {
+            result = Integer.parseInt(fileContent.split("\n")[fileContent.split("\n").length - 1].split(" ")[2]);
+        }
+        catch (Exception e)
+        {
+            Log.d("ERROR!", e.toString());
+            Log.d("ERROR!", fileContent.split("\n")[fileContent.split("\n").length - 1]);
+            finish();
+        }
+
+        manager.updateScanScore(result, this);
 
         // Check if permission is already granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
@@ -262,36 +275,6 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
 
         return file.getAbsolutePath();
     }
-
-
-    private void showPasswordResetDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Reset Password");
-
-        // Set the layout for the dialog
-        View view = getLayoutInflater().inflate(R.layout.reset_password_dialog, null);
-        builder.setView(view);
-
-        // Get references to dialog views
-        EditText newPasswordEditText = view.findViewById(R.id.editText_newPassword);
-
-        builder.setPositiveButton("Reset", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                String newPassword = newPasswordEditText.getText().toString();
-
-                // Call a method to handle the password reset with the new password
-                // manager.checkForEmail(newPassword, this);
-            }
-        });
-
-        builder.setNegativeButton("Cancel", null);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
-    }
-
-
 
     /**
     Function shows notification for the end of the scan
@@ -392,17 +375,35 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
      input: the task with results
      output: none
      */
-    public void onUpdateResult(@NonNull Task<QuerySnapshot> task)
+    public void onUpdateResult(@NonNull Task<QuerySnapshot> task, int result)
     {
         if (task.isSuccessful()) {
             for (QueryDocumentSnapshot document : task.getResult()) {
-                document.getReference().update("url", urlEditText.getText().toString())
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(DashboardActivity.this, "URL successfully updated!", Toast.LENGTH_SHORT).show();
-                        })
-                        .addOnFailureListener(e -> {
-                            Toast.makeText(DashboardActivity.this, "Error updating URL", Toast.LENGTH_SHORT).show();
-                        });
+
+                Log.d("UPDATE!", String.valueOf(result));
+                Log.d("UPDATE!", String.valueOf(document.getLong("best_scan")));
+
+                // URL update
+                if (result == -1) {
+                    document.getReference().update("url", urlEditText.getText().toString())
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(DashboardActivity.this, "URL successfully updated!", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(DashboardActivity.this, "Error updating URL", Toast.LENGTH_SHORT).show();
+                            });
+                }
+
+                // best scan update if the current scan is rated higher than the one in the db
+                else if (result > document.getLong("best_scan")) {
+                    document.getReference().update("best_scan", result)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(DashboardActivity.this, "best scan successfully updated!", Toast.LENGTH_SHORT).show();
+                            })
+                            .addOnFailureListener(e -> {
+                                Toast.makeText(DashboardActivity.this, "Error updating best scab", Toast.LENGTH_SHORT).show();
+                            });
+                }
             }
         } else {
             Toast.makeText(DashboardActivity.this, "Error getting documents: ", Toast.LENGTH_SHORT).show();
