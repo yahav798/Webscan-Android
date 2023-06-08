@@ -11,10 +11,12 @@ import androidx.core.content.FileProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.AnimationDrawable;
@@ -35,6 +37,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -140,8 +143,7 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
             manager.updateURL(this);
         }
         else if (id == R.id.reset_pwd) {
-            Intent myIntent = new Intent(this, LoginActivity.class);
-            this.startActivity(myIntent);
+            manager.resetPassword(this);
         }
         else if (id == R.id.logout) {
             manager.logoutCurrentUser();
@@ -262,6 +264,35 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
     }
 
 
+    private void showPasswordResetDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Reset Password");
+
+        // Set the layout for the dialog
+        View view = getLayoutInflater().inflate(R.layout.reset_password_dialog, null);
+        builder.setView(view);
+
+        // Get references to dialog views
+        EditText newPasswordEditText = view.findViewById(R.id.editText_newPassword);
+
+        builder.setPositiveButton("Reset", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                String newPassword = newPasswordEditText.getText().toString();
+
+                // Call a method to handle the password reset with the new password
+                // manager.checkForEmail(newPassword, this);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", null);
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+
     /**
     Function shows notification for the end of the scan
     Input: the full path of the file and its name
@@ -302,7 +333,14 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
     Function is empty but must be declared due to interface requirements
      */
     @Override
-    public void onAuthenticationResult(boolean isSuccess) {}
+    public void onAuthenticationResult(boolean isSuccess) {
+        if (isSuccess) {
+            Toast.makeText(this, "Password reset request sent to your email!", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(this, "Error while making password reset request", Toast.LENGTH_SHORT).show();
+        }
+    }
 
     /**
     Function gets the result of query and updates the username and text
@@ -370,5 +408,10 @@ public class DashboardActivity extends AppCompatActivity implements View.OnClick
             Toast.makeText(DashboardActivity.this, "Error getting documents: ", Toast.LENGTH_SHORT).show();
         }
     }
+
+    /**
+     Function is empty but must be declared due to interface requirements
+     */
+    public void onSearchForEmailResult(@NonNull Task<SignInMethodQueryResult> task) {}
 
 }

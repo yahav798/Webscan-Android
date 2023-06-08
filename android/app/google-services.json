@@ -1,36 +1,26 @@
 {
   "project_info": {
-    "project_number": "154194755365",
-    "project_id": "webscan-android-9cd6f",
-    "storage_bucket": "webscan-android-9cd6f.appspot.com"
+    "project_number": "291236414786",
+    "project_id": "webscan-android-47273",
+    "storage_bucket": "webscan-android-47273.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:154194755365:android:bb78230674954ad62a24cc",
+        "mobilesdk_app_id": "1:291236414786:android:a89d5596edca309bf2f4db",
         "android_client_info": {
           "package_name": "com.example.webscanandroid"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "154194755365-3toadgc8aeg85fnbge36bun2e0153pqv.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyADswViGVo17xwmuuaswAYhdxNW3tCQJv8"
+          "current_key": "AIzaSyBj9FT3DVWBoxo38zgYFkAcgb9z6vWymXE"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "154194755365-3toadgc8aeg85fnbge36bun2e0153pqv.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

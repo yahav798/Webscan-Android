@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -69,7 +70,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
 
-        manager.getEmailAndUsernameFromDB(this, details[EMAIL_INDEX]);
+        manager.checkForEmail(details[EMAIL_INDEX], this);
     }
 
     /**
@@ -91,7 +92,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
             Toast.makeText(SignupActivity.this, "Signup failed.",
                     Toast.LENGTH_SHORT).show();
 
-            manager.deleteCurrentUser(this);
+            // manager.deleteCurrentUser(this);
         }
     }
 
@@ -101,11 +102,18 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
      output: none
      */
     @Override
-    public void onQueryResult(@NonNull Task<QuerySnapshot> task) {
-        if (task.isSuccessful()) {
-            Toast.makeText(this, "first stage good", Toast.LENGTH_SHORT).show();
+    public void onQueryResult(@NonNull Task<QuerySnapshot> task) {}
 
-            if(!task.getResult().isEmpty()) {
+    /**
+     Function is empty but must be declared due to interface requirements
+     */
+    public void onSearchForEmailResult(@NonNull Task<SignInMethodQueryResult> task) {
+        Toast.makeText(this, "first step", Toast.LENGTH_SHORT).show();
+
+        if (task.isSuccessful()) {
+            SignInMethodQueryResult result = task.getResult();
+            if (result != null && result.getSignInMethods() != null && !result.getSignInMethods().isEmpty()) {
+                // The email already exists in the Firebase Authentication system
                 Toast.makeText(this, "Email already exists", Toast.LENGTH_SHORT).show();
             }
             else {

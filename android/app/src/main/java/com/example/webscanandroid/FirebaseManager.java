@@ -12,8 +12,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.Filter;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -86,6 +88,7 @@ public class FirebaseManager {
                     public void onFailure(@NonNull Exception e) {
                         // Toast.makeText(SignupActivity.this, "Authentication failed on db.", Toast.LENGTH_SHORT).show();
                         callback.onAuthenticationResult(false);
+                        Log.d("ERROR!", e.toString());
                     }
                 });
     }
@@ -126,7 +129,6 @@ public class FirebaseManager {
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                Log.d("RESULT!", String.valueOf(task.isSuccessful()));
                 callback.onQueryResult(task);
             }
         });
@@ -138,9 +140,8 @@ public class FirebaseManager {
      Output: none
      */
     public void updateURL(FirebaseQueriesCallback callback) {
-        CollectionReference collectionRef = db.collection("users");
 
-        Query query = collectionRef.whereEqualTo("email", user.getEmail());
+        Query query = db.collection("users").whereEqualTo("email", user.getEmail());
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -167,9 +168,8 @@ public class FirebaseManager {
     public void deleteCurrentUser(FirebaseQueriesCallback callback)
     {
         String email = user.getEmail();
-        Log.d("DELETE!", email);
+
         user.delete();
-        Log.d("DELETE!", "delete auth done!");
 
         CollectionReference collectionRef = db.collection("users");
 
@@ -180,6 +180,27 @@ public class FirebaseManager {
                 callback.onDeleteResult(task);
             }
         });
+    }
+
+    public void checkForEmail(String email, FirebaseQueriesCallback callback)
+    {
+        auth.fetchSignInMethodsForEmail(email)
+                .addOnCompleteListener(new OnCompleteListener<SignInMethodQueryResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<SignInMethodQueryResult> task) {
+                        callback.onSearchForEmailResult(task);
+                    }
+                });
+    }
+
+    public void resetPassword( FirebaseQueriesCallback callback) {
+        auth.sendPasswordResetEmail(user.getEmail())
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        callback.onAuthenticationResult(task.isSuccessful());
+                    }
+                });
     }
 
 

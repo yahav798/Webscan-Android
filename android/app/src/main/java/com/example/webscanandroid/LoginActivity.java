@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.SignInMethodQueryResult;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, FirebaseQueriesCallback {
@@ -102,5 +103,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
      Function is empty but must be declared due to interface requirements
      */
     public void onUpdateResult(@NonNull Task<QuerySnapshot> task) {}
+
+    /**
+     Function is empty but must be declared due to interface requirements
+     */
+    public void onSearchForEmailResult(@NonNull Task<SignInMethodQueryResult> task) {}
 
 }
