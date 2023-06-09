@@ -74,7 +74,7 @@ def main(url):
 
     for i in data_of_site.all_links():
         '''
-        if 'xss' not in i and 'sqli' not in i and 'fi' not in i and 'redirect' not in i and 'csrf' not in i:
+        if 'vulnerabilities' not in i: #'xss' not in i and 'sqli' not in i and 'fi' not in i and 'redirect' not in i and 'csrf' not in i:
             continue
         '''
 

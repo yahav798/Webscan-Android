@@ -25,8 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:text="y7981028@gmail.com" />
+            android:inputType="textEmailAddress" />
 
         <EditText
             android:id="@+id/password_edit_text"
@@ -34,8 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
             android:hint="Password"
-            android:inputType="textPassword"
-            android:text="123456789y" />
+            android:inputType="textPassword" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/login_button"
